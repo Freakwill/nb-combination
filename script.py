@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from nbensemble import *
+from nb_comb import *
 from sklearn.naive_bayes import *
 from sklearn.tree import *
 from sklearn.neural_network import *
@@ -42,27 +42,32 @@ import time
 estimators = [('bernoulli', BernoulliNB()), ('multinomial', MultinomialNB()), ('gauss', GaussianNB())]
 nba1 = NBAdditive(estimators=estimators)
 
-estimators = [('bernoulli', BernoulliNB()), ('tree', DecisionTreeClassifier()), ('gauss', GaussianNB())]
+estimators = [('bernoulli', BernoulliNB()), ('tree', DecisionTreeClassifier()), ('gauss',  GaussianNB())]
 nba2 = NBAdditive(estimators=estimators)
 
-models = [('NB组合（NB）', nba1), ('NB组合（非NB）', nba2),
-('高斯NB', GaussianNB()), ('多项式NB', MultinomialNB()), ('决策树', DecisionTreeClassifier()), ('神经网络',  MLPClassifier(hidden_layer_sizes=(8,), max_iter=1800))]
+estimators = [('bernoulli', BernoulliNB()), ('tree', DecisionTreeClassifier()), ('mlp',  MLPClassifier(hidden_layer_sizes=(5,), max_iter=2000))]
+nba3 = NBAdditive(estimators=estimators)
 
+models = [('NB组合0（NB）', nba1), ('NB组合1（非NB）', nba2), ('NB组合2（非NB）', nba3),
+('高斯NB', GaussianNB()), ('多项式NB', MultinomialNB()), ('决策树', DecisionTreeClassifier()), ('神经网络',  MLPClassifier(hidden_layer_sizes=(8,), max_iter=2000))]
+
+np.random.seed(1001)
 perf = []
 for name, model in models:
-    time1 = time.perf_counter()
-    if name.startswith('NB'):
-        model.fit(X_train, Y_train, inds=[key1, key2, key3])
-    else: 
-        model.fit(X_train, Y_train)
-    time2 = time.perf_counter()
-    perf.append([name, model.score(X_test, Y_test), time2 - time1])
+    dts = []
+    for _ in range(2):
+        time1 = time.perf_counter()
+        if name.startswith('NB'):
+            model.fit(X_train, Y_train, inds=[key1, key2, key3])
+        else: 
+            model.fit(X_train, Y_train)
+        time2 = time.perf_counter()
+        dt = time2 - time1
+        dts.append(dt)
+    perf.append([name, model.score(X_train, Y_train), model.score(X_test, Y_test), np.mean(dts)])
 
 
-p = pd.DataFrame(data=perf, columns=('name', 'score', 'time'))
+p = pd.DataFrame(data=perf, columns=('name', 'train-score', 'test-score', 'time'))
 print(p)
 
-# model = MLPClassifier()
-# model.fit(X_train[key2], Y_train)
-# print(model.score(X_test[key2], Y_test))
 
