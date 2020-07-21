@@ -14,6 +14,6 @@ Y= [0,1,0,1]
 from sklearn.naive_bayes import *
 estimators = [('multinomial', MultinomialNB()), ('gauss', GaussianNB())]
 model = NBAdditive(estimators)
-model.fit(X, Y, [[0,1], [2]])
+model.fit(X, Y, inds=[[0,1], [2]])
 print(model.predict(X))
 ```
