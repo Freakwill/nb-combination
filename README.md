@@ -3,8 +3,11 @@ ensemble classifier with naive bayes combination
 
 The algorithm is implemented in `nb_comb.py`
 
+## Download
+Just download it from github.
+
 ## use
-just run `script.py`
+just run `script.py` and have a look at the source code.
 
 ## Example
 
