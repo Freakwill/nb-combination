@@ -10,11 +10,16 @@ where f_{i,c}(xi) is the prob of c when input is xi by model i,
 m is the number of base estimators.
 
 Created by William Song
+
+*Reference* 
+SONG Cong-Wei. Simply Constructed Ensemble Classifier Based on Naive Bayes Combination, 
+Computer Systems & Applications, 2021, 30(2):265−267
 """
 
 import pandas as pd
 import numpy as np
-from sklearn.naive_bayes import _BaseNB, check_array
+from sklearn.naive_bayes import _BaseNB
+from sklearn.utils import check_array, check_consistent_length
 from sklearn.ensemble._base import _BaseHeterogeneousEnsemble
 from sklearn.model_selection import train_test_split
 
@@ -28,9 +33,11 @@ def _log_proba(model, x):
         raise Exception(f"The model {model} does not have attribute 'predict_log_proba' or 'predict_proba'!")
 
 
-def stack(*Xs):
+def _stack(*Xs):
     # helper to generate data
     # stack the input data and record the indexes
+    check_consistent_length(Xs)
+
     ls = [X.shape[1] for X in Xs]
     l0 = 0
     inds = []
@@ -64,13 +71,18 @@ class NBAdditive(_BaseHeterogeneousEnsemble, _BaseNB):
     def inds(self, x):
         self.__inds = x
 
+    def ezfit(self, Xs, Y):
+        X, inds = _stack(Xs)
+        return self.fit(X, Y, inds)
+
+
     def fit(self, X, Y, inds=None):
         """
         fit the samples by nbe formula
         
         Arguments:
             X {array} -- input data
-            Y {array} -- ouput data
+            Y {array} -- ouput data/labels
             inds {list} -- list of indexes
         """
 
